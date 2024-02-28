@@ -117,7 +117,7 @@ You can then also add any additional extensions that you may need to create as p
 
 [Utility API](../utility-apis/01-index.md) factories are now installed as extensions instead. Pass the existing factory to `createApiExtension` and install it in the app. For more information, see the section on [configuring Utility APIs](../utility-apis/04-configuring.md).
 
-For example, the following API configuration:
+For example, the following apis configuration:
 
 ```ts
 const app = createApp({
@@ -151,9 +151,69 @@ Icons are currently installed through the usual options to `createApp`, but will
 
 Plugins are now passed through the `features` options instead.
 
+For example, the following plugins configuration:
+
+```tsx
+import { homePlugin } from '@backstage/plugin-home';
+
+createApp({
+  // ...
+  plugins: [homePlugin],
+  // ...
+});
+```
+
+Can be converted to the following features configuration:
+
+```tsx
+// plugins are now default exported via alpha subpath
+import homePlugin from '@backstage/plugin-home/alpha';
+
+createApp({
+  // ...
+  features: [homePlugin],
+  // ...
+});
+```
+
+Plugins don't even have to be imported manually after installing their package if [features discovery](../architecture/02-app.md#feature-discovery) is enabled.
+
+```yaml title="in app-config.yaml"
+app:
+  # Enabling plugin and override features discovery
+  experimental: 'all'
+```
+
 ### `featureFlags`
 
 Declaring features flags in the app is no longer supported, move these declarations to the appropriate plugins instead.
+
+For example, the following app feature flags configuration:
+
+```tsx
+createApp({
+  // ...
+  featureFlags: [
+    {
+      pluginId: '',
+      name: 'tech-radar',
+      description: 'Enables the tech radar plugin',
+    },
+  ],
+  // ...
+});
+```
+
+Can be converted to the following plugin configuration:
+
+```tsx
+createPlugin({
+  id: 'tech-radar',
+  // ...
+  featureFlags: [{ name: 'tech-radar' }],
+  // ...
+});
+```
 
 ### `components`
 
@@ -276,6 +336,35 @@ const app = createApp({
 ### `__experimentalTranslations`
 
 Translations are now installed as extensions, using `createTranslationExtension`.
+
+For example, the following translations configuration:
+
+```tsx
+import { catalogTranslationRef } from '@backstage/plugin-catalog/alpha';
+createApp({
+  // ...
+  __experimentalTranslations: {
+    resources: [
+      createTranslationMessages({
+        ref: catalogTranslationRef,
+        catalog_page_create_button_title: 'Create Software',
+      }),
+    ],
+  },
+  // ...
+});
+```
+
+Can be converted to the following extension:
+
+```tsx
+createTranslationExtension({
+  resource: createTranslationMessages({
+    ref: catalogTranslationRef,
+    catalog_page_create_button_title: 'Create Software',
+  }),
+});
+```
 
 ## Gradual Migration
 

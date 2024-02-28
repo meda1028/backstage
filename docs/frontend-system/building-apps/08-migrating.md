@@ -74,7 +74,7 @@ export default app.createRoot();
 
 We've taken all the elements that were previously passed to `app.createRoot(...)`, and instead passed them to `convertLegacyApp(...)`. We then pass the features returned by `convertLegacyApp` and forward them to the `features` option of the new `createApp`.
 
-There is one more detail that we need to deal with before moving on. The `app.createRoot()` function now returns a React element rather and a component, so we need to update our app `index.tsx` as follows:
+There is one more detail that we need to deal with before moving on. The `app.createRoot()` function now returns a React element rather than a component, so we need to update our app `index.tsx` as follows:
 
 ```tsx title="in packages/app/src/index.tsx"
 import '@backstage/cli/asset-types';
@@ -161,7 +161,7 @@ Many app components are now installed as extensions instead using `createCompone
 
 The `Router` component is now a built-in extension that you can override using `createRouterExtension`.
 
-The Sign-in page is now installed as an extension using the `createSignInPageExtension` instead. See the section on [configuring the sign-in page](./index.md#TODO) for more information.
+The Sign-in page is now installed as an extension using the `createSignInPageExtension` instead.
 
 For example, the following sign-in page configuration:
 
@@ -204,7 +204,7 @@ const signInPage = createSignInPageExtension({
 
 ### `themes`
 
-Themes are now installed as extensions instead using `createThemeExtension`. See the section on [configuring themes](./index.md#TODO) for more information.
+Themes are now installed as extensions, using `createThemeExtension`.
 
 For example, the following theme configuration:
 
@@ -216,7 +216,9 @@ const app = createApp({
       title: 'Light',
       variant: 'light',
       Provider: ({ children }) => (
-        <UnifiedThemeProvider theme={customLightTheme} children={children} />
+        <UnifiedThemeProvider theme={customLightTheme}>
+          {children}
+        </UnifiedThemeProvider>
       ),
     },
   ],
@@ -273,11 +275,11 @@ const app = createApp({
 
 ### `__experimentalTranslations`
 
-Translations are now installed as extensions instead using `createTranslationExtension`. See the section on [configuring translations](./index.md#TODO) for more information.
+Translations are now installed as extensions, using `createTranslationExtension`.
 
 ## Gradual Migration
 
-After updating all `createApp` options as well as using `convertLegacyApp` to use our existing app structure, you should be able to start up the app and see that it still works. If that is not the case, make sure you read any errors messages that you may see in the app as they can provide hints on what you need to fix. If you are still stuck, you can check if anyone else ran into the same issue in our [GitHub issues](https://github.com/backstage/backstage/issues), or ask for help in our [community Discord](https://discord.gg/backstage-687207715902193673).
+After updating all `createApp` options as well as using `convertLegacyApp` to use your existing app structure, you should be able to start up the app and see that it still works. If that is not the case, make sure you read any error messages that you may see in the app as they can provide hints on what you need to fix. If you are still stuck, you can check if anyone else ran into the same issue in our [GitHub issues](https://github.com/backstage/backstage/issues), or ask for help in our [community Discord](https://discord.gg/backstage-687207715902193673).
 
 Assuming your app is now working, let's continue by migrating the rest of the app element tree to use the new system.
 
@@ -330,7 +332,7 @@ const routes = (
 );
 ```
 
-Each of these routes need to be migrated to the new system. You can do it as gradually as you want, with the only restriction being that **all routes from a single plugin must be migrated at once**. This is because plugins discovered from these legacy routes will override any plugin that are installed in your app. If you for example only migrate one of the two routes defined by a plugin, the other route will remain and still override any plugin with the same ID, and you're left with a partial and likely broken plugin.
+Each of these routes needs to be migrated to the new system. You can do it as gradually as you want, with the only restriction being that **all routes from a single plugin must be migrated at once**. This is because plugins discovered from these legacy routes will override any plugins that are installed in your app. If you for example only migrate one of the two routes defined by a plugin, the other route will remain and still override any plugin with the same ID, and you're left with a partial and likely broken plugin.
 
 To migrate a route, you need to remove it from your list of routes and instead install the new version of the plugin in your app. Before doing this you should make sure that the plugin supports the new system. Let's remove the scaffolder route as an example:
 
@@ -354,7 +356,7 @@ const routes = (
 );
 ```
 
-If you are using [app feature discovery](../architecture/02-app.md#feature-discovery) the installation step is simple, it's already done! The new version of the scaffolder plugin was already discovered and present in the app, it was simply disabled because the plugin created from the legacy route had higher priority. If you do not use feature discovery, you will instead need to manually installed the new scaffolder plugin in your app through the `features` option of `createApp`.
+If you are using [app feature discovery](../architecture/02-app.md#feature-discovery) the installation step is simple, it's already done! The new version of the scaffolder plugin was already discovered and present in the app, it was simply disabled because the plugin created from the legacy route had higher priority. If you do not use feature discovery, you will instead need to manually install the new scaffolder plugin in your app through the `features` option of `createApp`.
 
 Continue this process for each of your legacy routes until you have migrated all of them. For any plugin with additional extensions installed as children of the `Route`, refer to the plugin READMEs for more detailed instructions. For the entity pages, refer to the [separate section](#entity-pages).
 
@@ -408,7 +410,7 @@ export default app.createRoot(
 );
 ```
 
-The `AlertDisplay` and `OAuthRequestDialog` are already provided as built-in extensions, and so will `VisitListener`. But, if you have your own custom root elements you will need to migrate them be extensions that you install in the app instead. Use `createAppRootElementExtension` to create said extension and then install it in the app.
+The `AlertDisplay` and `OAuthRequestDialog` are already provided as built-in extensions, and so will `VisitListener`. But, if you have your own custom root elements you will need to migrate them to be extensions that you install in the app instead. Use `createAppRootElementExtension` to create said extension and then install it in the app.
 
 Whether the element used to be rendered as a child of the `AppRouter` or not doesn't matter. All new root app elements will be rendered as a child of the app router.
 
@@ -432,4 +434,4 @@ export default app.createRoot(
 );
 ```
 
-Any app root wrapper needs to be migrated to be an extension instead, using `createAppRootWrapperExtension`. Note that if you have multiple wrappers they must be completely independent of each other, the order in which the appear in the React tree should not matter. If that is not the case then you should group them into a single wrapper.
+Any app root wrapper needs to be migrated to be an extension, using `createAppRootWrapperExtension`. Note that if you have multiple wrappers they must be completely independent of each other, i.e. the order in which they the appear in the React tree should not matter. If that is not the case then you should group them into a single wrapper.

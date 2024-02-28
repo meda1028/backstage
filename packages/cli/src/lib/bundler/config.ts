@@ -270,6 +270,12 @@ export async function createBackendConfig(
         : '--inspect-brk';
     runScriptNodeArgs.push(inspect);
   }
+  if (options.require) {
+    runScriptNodeArgs.push(`--require=${options.require}`);
+  }
+  if (options.import) {
+    runScriptNodeArgs.push(`--import=${options.import}`);
+  }
 
   return {
     mode: isDev ? 'development' : 'production',

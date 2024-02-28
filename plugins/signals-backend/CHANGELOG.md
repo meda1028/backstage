@@ -1,5 +1,19 @@
 # @backstage/plugin-signals-backend
 
+## 0.0.4-next.1
+
+### Patch Changes
+
+- df45710: Improved error logging and fixed authentication
+- Updated dependencies
+  - @backstage/backend-common@0.21.3-next.0
+  - @backstage/backend-plugin-api@0.6.13-next.0
+  - @backstage/config@1.1.2-next.0
+  - @backstage/types@1.1.1
+  - @backstage/plugin-auth-node@0.4.8-next.0
+  - @backstage/plugin-events-node@0.3.0-next.0
+  - @backstage/plugin-signals-node@0.0.4-next.0
+
 ## 0.0.4-next.0
 
 ### Patch Changes
